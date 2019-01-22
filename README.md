@@ -1,4 +1,4 @@
-# Laravel - Lumen docker pet project
+# Laravel - Lumen Docker Pet Project
 
 Contains lightweight infrastructure for quick launch of Laravel - Lumen and other php projects using Docker containers.
 
