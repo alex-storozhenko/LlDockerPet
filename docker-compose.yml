@@ -1,0 +1,135 @@
+version: '3.1'
+
+volumes:
+  database:
+    driver: ${VOLUMES_DRIVER}
+  redis:
+    driver: ${VOLUMES_DRIVER}
+  workspace:
+    driver: ${VOLUMES_DRIVER}
+
+networks:
+  backend:
+    driver: ${NETWORKS_DRIVER}
+
+# Define services
+services:
+
+  ### Database Container #################################
+  database:
+    build:
+      context: ./docker/database
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${WORKSPACE_TIMEZONE}
+    volumes:
+      - ./docker/storage/database:/var/lib/mysql
+      - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+    ports:
+      - 3336:3306
+    networks:
+      - backend
+
+  ### Redis Container #########################################
+  redis:
+    build:
+      context: ./docker/redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - ./docker/storage/redis:/data
+    sysctls:
+      - net.core.somaxconn=65535
+    ports:
+      - 6390:6379
+    networks:
+      - backend
+
+  ### Workspace Container ###############################
+  workspace:
+    tty: true
+    build:
+      context: ./docker/workspace
+    volumes:
+      - ./src:/home/app/src
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${WORKSPACE_TIMEZONE}
+    depends_on:
+      - database
+      - redis
+
+  ### Nginx Container ###############################
+  nginx:
+    build:
+      context: ./docker/nginx
+      args:
+        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+    volumes:
+      - ./src:/var/www/html
+      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+      - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
+      - ${NGINX_SSL_PATH}:/etc/nginx/ssl
+    ports:
+      - 8033:80
+      - 4443:443
+    depends_on:
+      - phpfpm
+    networks:
+      - backend
+
+  ### PHPFPM Container ###############################
+  phpfpm:
+    build:
+      context: ./docker/phpfpm
+    volumes:
+      - ./docker/phpfpm/php.ini:/usr/local/etc/php/php.ini
+      - ./src:/var/www/html
+    environment:
+      - PUID=${PUID}
+      - TZ=${WORKSPACE_TIMEZONE}
+      - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
+      - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
+    ports:
+      - 9000
+    depends_on:
+      - database
+      - redis
+    networks:
+      - backend
+
+  ### PHP Worker Container ###############################
+  worker:
+    build:
+      context: ./docker/worker
+    volumes:
+      - ./src:/var/www/html
+      - ${WORKER_LOG_PATH}:/var/log/supervisord
+      - ./docker/worker/supervisord.d:/etc/supervisord.d
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${WORKSPACE_TIMEZONE}
+    depends_on:
+      - database
+      - redis
+    networks:
+      - backend
+
+  ### Let`s encrypt bot Container ###############################
+  certbot:
+    build:
+      context: ./docker/certbot
+    volumes:
+      - ./docker/storage/certbot/certs/:/var/certs
+      - ./docker/certbot/letsencrypt/:/var/www/letsencrypt
+    environment:
+      - CN="fake.domain.com"
+      - EMAIL="fake.email@gmail.com"
+    networks:
+      - backend
