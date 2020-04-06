@@ -24,3 +24,5 @@ fabric.properties
 
 # Env file
 .env
+
+src

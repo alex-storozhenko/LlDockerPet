@@ -4,11 +4,14 @@ LABEL maintainer="Alex Storozhenko <a.storozhenko@live.com>"
 
 COPY nginx.conf /etc/nginx/
 
+ARG PUID=1000
+ENV PUID ${PUID}
+
 RUN apk update \
     && apk upgrade \
     && apk add --no-cache openssl \
     && apk add --no-cache bash \
-    && adduser -D -H -u 1000 -s /bin/bash www-data
+    && adduser -D -H -u ${PUID} -s /bin/bash www-data -G www-data
 
 ARG PHP_UPSTREAM_CONTAINER=phpfpm
 ARG PHP_UPSTREAM_PORT=9000

@@ -108,6 +108,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 #--------------------------------------------------------------------------
 #
 COPY ./laravel-lumen.ini /usr/local/etc/php/conf.d
-COPY ./xlaravel-lumen.pool.conf /usr/local/etc/php-fpm.d/
+COPY ./laravel-lumen.pool.conf /usr/local/etc/php-fpm.d/
 
 WORKDIR /var/www/html

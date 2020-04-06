@@ -54,7 +54,7 @@ services:
     build:
       context: ./docker/workspace
     volumes:
-      - ./src:/home/app/src
+      - ./src:/home/app/src:delegated
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -62,6 +62,8 @@ services:
     depends_on:
       - database
       - redis
+    networks:
+      - backend
 
   ### Nginx Container ###############################
   nginx:
