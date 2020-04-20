@@ -5,7 +5,7 @@ LABEL maintainer="Alex Storozhenko <a.storozhenko@live.com>"
 COPY nginx.conf /etc/nginx/
 
 ARG PUID=1000
-ENV PUID ${PUID}
+ENV PUID=${PUID}
 
 RUN apk update \
     && apk upgrade \
@@ -16,12 +16,17 @@ RUN apk update \
 ARG PHP_UPSTREAM_CONTAINER=phpfpm
 ARG PHP_UPSTREAM_PORT=9000
 
+ENV PHP_UPSTREAM_CONTAINER=${PHP_UPSTREAM_CONTAINER}
+ENV PHP_UPSTREAM_PORT=${PHP_UPSTREAM_PORT}
+
 # Set upstream conf and remove the default conf
 RUN echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf \
     && rm /etc/nginx/conf.d/default.conf
 
 ADD ./startup.sh /opt/startup.sh
+
 RUN sed -i 's/\r//g' /opt/startup.sh
+
 CMD ["/bin/bash", "/opt/startup.sh"]
 
 EXPOSE 80 443

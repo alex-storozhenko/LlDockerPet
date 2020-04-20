@@ -17,8 +17,6 @@ mkdir src
 
 Copy ".env-example" and set name ".env" for new file change ENV.
 
-Will be good set "container_name" in docker-compose.yml.
-
 run:
 
 ```sh

@@ -1,9 +1,8 @@
 FROM redis:5.0
 
-MAINTAINER Oleksandr Storozhenko <ostorozhenko@sharpminds.com>
+LABEL maintainer="Alex Storozhenko <a.storozhenko@live.com>"
 
 ARG REDIS_PASSWORD='secret'
-ENV REDIS_PASSWORD ${REDIS_PASSWORD}
 
 RUN mkdir -p /usr/local/etc/redis
 
@@ -15,5 +14,7 @@ COPY redis.conf /usr/local/etc/redis/redis.conf
 VOLUME /data
 
 EXPOSE 6379
+
+ENV REDIS_PASSWORD=${REDIS_PASSWORD}
 
 CMD [ "sh", "-c", "exec redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}"]

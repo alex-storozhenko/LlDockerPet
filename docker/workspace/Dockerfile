@@ -2,12 +2,10 @@ FROM php:7.3-cli-stretch
 
 LABEL maintainer="Alex Storozhenko <a.storozhenko@live.com>"
 
-ARG PUID=1000
-ENV PUID ${PUID}
-ARG PGID=1000
-ENV PGID ${PGID}
 ARG TZ=UTC
-ENV TZ ${TZ}
+ARG PUID=1000
+ARG PGID=1000
+ARG PHPREDIS_VERSION=5.2.1
 
 RUN DEBIAN_FRONTEND=noninteractive
 
@@ -50,7 +48,7 @@ RUN docker-php-ext-install iconv \
 #####################################
 # Phpredis extension install
 #####################################
-ENV PHPREDIS_VERSION 4.2.0
+ENV PHPREDIS_VERSION=${PHPREDIS_VERSION}
 
 RUN mkdir -p /usr/src/php/ext/redis \
         && curl -L https://github.com/phpredis/phpredis/archive/${PHPREDIS_VERSION}.tar.gz | tar xvz -C /usr/src/php/ext/redis --strip 1 \
@@ -62,6 +60,7 @@ RUN mkdir -p /usr/src/php/ext/redis \
 #####################################
 RUN apt-get update && apt-get install -y \
             git \
+            htop \
             mc \
                 && apt-get -y autoremove \
                 && apt-get clean \
@@ -73,21 +72,14 @@ RUN apt-get update && apt-get install -y \
 RUN php -r "readfile('http://getcomposer.org/installer');" \
     | php -- --install-dir=/usr/bin/ --filename=composer
 
-#####################################
-# Phpiredis extension install
-#####################################
-ENV PHPIREDIS_VERSION 1.0.0
-
-RUN mkdir -p /usr/src/php/ext/phpiredis \
-        && curl -L https://github.com/nrk/phpiredis/archive/v${PHPIREDIS_VERSION}.tar.gz | tar xvz -C /usr/src/php/ext/phpiredis --strip 1 \
-        && echo 'phpiredis' >> /usr/src/php-available-exts \
-        && docker-php-ext-install phpiredis
-
 VOLUME /app
 
 #####################################
 # Non-Root User
 #####################################
+ENV PUID=${PUID}
+ENV PGID=${PGID}
+
 RUN groupadd -g ${PGID} app && \
     useradd -u ${PUID} -g app -m app
 
@@ -96,6 +88,8 @@ RUN chown -R app:app /home/app
 #####################################
 # Set Timezone
 #####################################
+ENV TZ=${TZ}
+
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 USER app

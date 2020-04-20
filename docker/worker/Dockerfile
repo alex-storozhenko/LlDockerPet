@@ -3,13 +3,12 @@ FROM php:7.3-cli-alpine
 LABEL maintainer="Alex Storozhenko <a.storozhenko@live.com>"
 
 ARG TZ=UTC
-ENV TZ ${TZ}
-
-# Add a non-root user:
 ARG PUID=1000
-ENV PUID ${PUID}
 ARG PGID=1000
-ENV PGID ${PGID}
+ARG PHPREDIS_VERSION=5.2.1
+
+ENV PUID=${PUID}
+ENV PGID=${PGID}
 
 RUN addgroup -g ${PGID} worker && \
     adduser -D -G worker -u ${PUID} worker
@@ -28,7 +27,6 @@ RUN apk add --no-cache \
             zip \
             unzip \
             libzip-dev \
-            hiredis-dev \
             openssl \
             bash \
             shadow
@@ -48,30 +46,12 @@ RUN docker-php-ext-install iconv \
 #####################################
 # Phpredis extension install
 #####################################
-ENV PHPREDIS_VERSION 4.2.0
+ENV PHPREDIS_VERSION=${PHPREDIS_VERSION}
 
 RUN mkdir -p /usr/src/php/ext/redis \
         && curl -L https://github.com/phpredis/phpredis/archive/${PHPREDIS_VERSION}.tar.gz | tar xvz -C /usr/src/php/ext/redis --strip 1 \
         && echo 'redis' >> /usr/src/php-available-exts \
         && docker-php-ext-install redis
-
-#####################################
-# Phpiredis extension install
-#####################################
-ENV PHPIREDIS_VERSION 1.0.0
-
-RUN mkdir -p /usr/src/php/ext/phpiredis \
-        && curl -L https://github.com/nrk/phpiredis/archive/v${PHPIREDIS_VERSION}.tar.gz | tar xvz -C /usr/src/php/ext/phpiredis --strip 1 \
-        && echo 'phpiredis' >> /usr/src/php-available-exts \
-        && docker-php-ext-install phpiredis
-
-###########################################################################
-# Opcache:
-###########################################################################
-RUN docker-php-ext-install opcache
-
-# Copy opcache configration
-COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 #####################################
 # Install tools and additional soft
@@ -82,6 +62,7 @@ RUN apk add --no-cache \
 #####################################
 # Set Timezone
 #####################################
+ENV TZ=${TZ}
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 #
