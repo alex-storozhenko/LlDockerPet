@@ -118,6 +118,8 @@ services:
       - ./src:/var/www/html
       - ${WORKER_LOG_PATH}:/var/log/supervisord
       - ./docker/worker/supervisord.d:/etc/supervisord.d
+    ports:
+      - 9001:9001
     depends_on:
       - database
       - redis
