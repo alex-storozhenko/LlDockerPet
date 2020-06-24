@@ -7,12 +7,19 @@ volumes:
     driver: ${VOLUMES_DRIVER}
   workspace:
     driver: ${VOLUMES_DRIVER}
+  nginx:
+    driver: ${VOLUMES_DRIVER}
+  phpfpm:
+    driver: ${VOLUMES_DRIVER}
+  worker:
+    driver: ${VOLUMES_DRIVER}
 
 networks:
   backend:
     driver: ${NETWORKS_DRIVER}
 
 # Define services
+# Uncomment ports if you will not use override file
 services:
 
   ### Database Container #################################
@@ -29,8 +36,8 @@ services:
     volumes:
       - ./docker/storage/database:/var/lib/mysql
       - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
-    ports:
-      - 3306:3306
+    #ports:
+      #- 3306:3306
     networks:
       - backend
 
@@ -44,8 +51,8 @@ services:
       - ./docker/storage/redis:/data
     sysctls:
       - net.core.somaxconn=65535
-    ports:
-      - 6379:6379
+    #ports:
+      #- 6379:6379
     networks:
       - backend
 
@@ -81,9 +88,9 @@ services:
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
       - ${NGINX_SSL_PATH}:/etc/nginx/ssl
-    ports:
-      - 80:80
-      - 443:443
+    #ports:
+      #- 80:80
+      #- 443:443
     depends_on:
       - phpfpm
     networks:
@@ -103,8 +110,8 @@ services:
     volumes:
       - ./docker/phpfpm/php.ini:/usr/local/etc/php/php.ini
       - ./src:/var/www/html
-    ports:
-      - 9000
+    #ports:
+      #- 9000
     depends_on:
       - database
       - redis
@@ -126,8 +133,8 @@ services:
       - ./src:/var/www/html
       - ${WORKER_LOG_PATH}:/var/log/supervisord
       - ./docker/worker/supervisord.d:/etc/supervisord.d
-    ports:
-      - 9001:9001
+    #ports:
+      #- 9001:9001
     depends_on:
       - database
       - redis
