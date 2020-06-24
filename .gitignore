@@ -27,5 +27,7 @@ fabric.properties
 
 src
 
-# Docker compose override files
+# Docker overrides files
+.docker-sync
 docker-compose.*.yml
+docker-sync.yml
