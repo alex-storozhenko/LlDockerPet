@@ -6,7 +6,7 @@ Contains lightweight infrastructure for quick launch of Laravel - Lumen and othe
  
  - [docker](http://www.docker.com) (17.06+)
  - [docker-compose](https://docs.docker.com/compose/install/) (1.18+)
-
+ - [docker-sync](http://docker-sync.io/) (0.5+) (optional)
 ### Integration
 
 Just rename docker-sync.yml.dist to docker-sync.yml and write your config. 
