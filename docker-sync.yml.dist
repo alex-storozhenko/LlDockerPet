@@ -3,10 +3,11 @@ version: "2"
 options:
   verbose: true
 syncs:
-  appcode-native-osx-sync:
+  # If you would like use volume per project that name should be uniqe
+  lldockerpet-appcode-native-osx-sync:
     src: './src'
     sync_userid: '501'
     sync_groupid: '20'
     sync_host_ip: 'auto'
     sync_host_port: 10872
-    sync_excludes: ['.idea', '.git', '.DS_Store']
+    sync_excludes: ['.idea', 'vendor', 'node_modules', '.git', '.DS_Store']

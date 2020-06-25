@@ -5,47 +5,48 @@ services:
 
   ### Workspace Container ###############################
   workspace:
-    # if you not use docker-sync just remove it
     volumes:
-      - appcode-native-osx-sync:/home/app/src:nocopy
-
+      - ./src:/home/app/src:delegated
+      
   ### Database Container #################################
   database:
     ports:
-      - 3306:3306
+      - 3396:3306
 
   ### Redis Container #########################################
   redis:
     ports:
-      - 6379:6379
+      - 6399:6379
 
   ### Nginx Container ###############################
   nginx:
-    # if you not use docker-sync just remove it
     volumes:
-      - appcode-native-osx-sync:/var/www/html:nocopy
+      - ./src/vendor:/var/www/html/vendor:cached
+      - ./src/node_modules:/var/www/html/node_modules:cached
+      - lldockerpet-appcode-native-osx-sync:/var/www/html:nocopy
     ports:
-      - 80:80
-      - 443:443
+      - 8090:80
+      - 4493:443
 
   ### PHPFPM Container ###############################
   phpfpm:
-    # if you not use docker-sync just remove it
     volumes:
-      - appcode-native-osx-sync:/var/www/html:nocopy
+      - ./src/vendor:/var/www/html/vendor:cached
+      - ./src/node_modules:/var/www/html/node_modules:cached
+      - lldockerpet-appcode-native-osx-sync:/var/www/html:nocopy
     ports:
       - 9000
 
   ### PHP Worker Container ###############################
   worker:
-    # if you not use docker-sync just remove it
     volumes:
-      - appcode-native-osx-sync:/var/www/html:nocopy
+      - ./src/vendor:/var/www/html/vendor:cached
+      - ./src/node_modules:/var/www/html/node_modules:cached
+      - lldockerpet-appcode-native-osx-sync:/var/www/html:nocopy
     ports:
-      - 9001:9001
+      - 9006:9001
 
-# if you not use docker-sync just remove it
 # that the important thing
 volumes:
-  appcode-native-osx-sync:
+  lldockerpet-appcode-native-osx-sync:
     external: true
