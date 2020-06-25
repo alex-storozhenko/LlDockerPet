@@ -9,9 +9,9 @@ Contains lightweight infrastructure for quick launch of Laravel - Lumen and othe
 
 ### Integration
 
-Integrated with [docker-sync](http://docker-sync.io/) for speed up volumes on the macOS.
+###### Just rename docker-sync.yml.dist to docker-sync.yml and write your config. 
 
-###### Just rename docker-sync.yml.dist to docker-sync.yml and write your configs. 
+Integrated with [docker-sync](http://docker-sync.io/) for speed up volumes on the macOS.
 
 ### Notes
 
